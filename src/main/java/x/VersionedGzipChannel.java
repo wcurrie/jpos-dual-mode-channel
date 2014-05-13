@@ -27,7 +27,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * Differs from GZIPChannel in that it has a fixed 3 byte prefix #01.
  * Rather arbitrary but differs from the first 3 bytes of anything produced by XMLChannel,
- * which is always &ltis.
+ * which is always &lt;is.
  */
 public class VersionedGzipChannel extends BaseChannel {
 
