@@ -9,11 +9,15 @@ import org.jpos.util.ThreadPool;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import x.aspects.ByteCounter;
+import x.metrics.AllocatedChannels;
+import x.metrics.CountingSocket;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.*;
-import java.util.stream.Stream;
 
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -52,17 +56,23 @@ public class StressTest {
 
     @Test
     public void chaos() throws Exception {
-        Stream<BaseChannel> channels = new Random().ints(0, 2).limit(100).mapToObj(Mode::channelFor);
-        Stream<Future<Integer>> futures = channels.map(c -> clientExecutor.submit(new Client(c)));
-        futures.forEach(f -> {
+        List<Future<Integer>> futures = new ArrayList<>();
+        Random random = new Random();
+        for (int i = 0; i < 100; i++) {
+            BaseChannel channel = Mode.channelFor(random.nextInt(2));
+            Future<Integer> future = clientExecutor.submit(new Client(channel));
+            futures.add(future);
+        }
+        for (Future<Integer> f : futures) {
             try {
-                Integer integer = f.get(2, TimeUnit.SECONDS);
-                assertThat(integer, is(MESSAGES_PER_CLIENT));
+                assertThat(f.get(2, TimeUnit.SECONDS), is(MESSAGES_PER_CLIENT));
             } catch (Exception e) {
                 e.printStackTrace();
                 fail(e.getMessage());
             }
-        });
+        }
+        ByteCounter.dump();
+        AllocatedChannels.dump();
     }
 
     private class Client implements Callable<Integer> {

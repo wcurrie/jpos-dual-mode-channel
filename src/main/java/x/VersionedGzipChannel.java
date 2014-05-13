@@ -66,14 +66,14 @@ public class VersionedGzipChannel extends BaseChannel {
         return in.readInt();
     }
 
-    public static void writePayload(byte[] b, int offset, int len, DataOutputStream out) throws IOException {
+    public static void writePayload(byte[] b, int offset, int len, OutputStream out) throws IOException {
         GZIPOutputStream gzip = new GZIPOutputStream(out);
         gzip.write(b, offset, len);
         gzip.finish();
         gzip.flush();
     }
 
-    public static void readPayload(byte[] b, int offset, int len, DataInputStream in) throws IOException {
+    public static void readPayload(byte[] b, int offset, int len, InputStream in) throws IOException {
         int total = 0;
         GZIPInputStream gzip = new GZIPInputStream(in);
         while (total < len) {

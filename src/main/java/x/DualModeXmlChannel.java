@@ -81,6 +81,16 @@ public class DualModeXmlChannel extends BaseChannel {
         }
     }
 
+    public String getMode() {
+        if (mode instanceof RawMode) {
+            return "Raw";
+        }
+        if (mode instanceof ZippedMode) {
+            return "Zip";
+        }
+        return null;
+    }
+
     private static interface Mode {
         byte[] receive() throws IOException;
         void send(byte[] b, int offset, int len) throws IOException;
